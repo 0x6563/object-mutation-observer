@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "noImplicitAny": false,
+        "removeComments": true,
+        "preserveConstEnums": true,
+        "outDir": "./dist",
+        "sourceMap": true,
+        "target": "es5",
+        "downlevelIteration": true
+    },
+    "include": [
+        "src/**/*"
+, "tests/index.spec.ts"    ],
+    "exclude": [
+        "node_modules",
+        "**/*.spec.ts"
+    ]
+}
