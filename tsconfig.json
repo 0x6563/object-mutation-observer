@@ -7,11 +7,12 @@
         "outDir": "./dist",
         "sourceMap": true,
         "target": "es5",
+        "experimentalDecorators": true,
         "downlevelIteration": true
     },
     "include": [
         "src/**/*"
-, "tests/index.spec.ts"    ],
+    ],
     "exclude": [
         "node_modules",
         "**/*.spec.ts"

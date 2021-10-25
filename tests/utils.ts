@@ -1,8 +1,8 @@
-import { ObjectMutationObserver } from "../src";
+import { ObjectMutationObserver, ObjectMutationObserverConfig } from "../src";
 
-export function GetTestBed() {
+export function GetTestBed(config?: ObjectMutationObserverConfig) {
     const object = GetTestObject();
-    const observer = new ObjectMutationObserver();
+    const observer = new ObjectMutationObserver(Object.assign({}, { emit: 'never', resolveChangeAncestors: 'late' }, config));
     const observed = observer.watch(object);
     return { object, observer, observed }
 }
@@ -12,7 +12,7 @@ export function GetTestObject() {
         link: 'a',
         obj: {}
     }
-    const obj: any = {
+    const obj = {
         "1": 2,
         a: "b",
         linked1: linked,
@@ -20,10 +20,16 @@ export function GetTestObject() {
         nested: {
             c: "c"
         },
-        recursive: {},
+        recursive: { obj: this },
         array: [2, 4, 3, 5, 1, 6],
-        sorted: [1, 2, 3, 4, 5, 6]
+        sorted: [1, 2, 3, 4, 5, 6],
+        [Symbol()]: {
+            symbol: {
+                bool: true
+            },
+            linked
+        }
     };
-    obj.recursive.obj = obj;
+    obj.recursive = { obj };
     return obj;
 }
