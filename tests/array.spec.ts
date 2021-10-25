@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import { LogEventExecute } from '../src';
 import { GetTestBed } from './utils';
 describe('Array tests', () => {
 
@@ -27,7 +28,8 @@ describe('Array tests', () => {
         expect(object.array[0]).to.equal(3);
     });
     it('checking array sort', () => {
-        const { object, observer, observed } = GetTestBed();
+        const { object, observer, observed } = GetTestBed({ tagFunctions: ['array-mutators'], emit: 'never' });
+
         observed.array.sort();
         expect(object.array[0]).to.equal(1);
         expect(object.array[1]).to.equal(2);
@@ -40,5 +42,13 @@ describe('Array tests', () => {
         const { object, observer, observed } = GetTestBed();
         observed.array.pop();
         expect(object.array.length).to.equal(5);
+    });
+
+    it('checking array push pop', () => {
+        const { object, observer, observed } = GetTestBed({ tagFunctions: ['array-mutators'], emit: 'never' });
+        observed.array.push(observed.array.pop());
+        const executes = observer.changes.filter((v: any) => v.tag) as LogEventExecute[];
+        expect(executes[0].tag).to.equal(executes[1].tag);
+        expect(executes[2].tag).to.equal(executes[3].tag);
     });
 });

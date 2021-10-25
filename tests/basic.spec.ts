@@ -26,13 +26,13 @@ describe('Basic tests', () => {
     it('observed objects sets native nested object', () => {
         const { object, observer, observed } = GetTestBed();
         const o = { d: 'd' };
-        observed.nested = o;
+        (observed.nested as any) = o;
         expect(object.nested).to.equal(o);
     });
     it('get native from observed object', () => {
         const { object, observer, observed } = GetTestBed();
         const o = { d: 'd' };
-        observed.nested = o;
+        (observed.nested as any) = o;
         const native = observer.getNative(observed.nested)
         expect(native).to.equal(o);
     });
@@ -47,5 +47,30 @@ describe('Basic tests', () => {
         object.array.pop();
         const changes = observer.changes;
         expect(changes.length).to.equal(0);
+    });
+    it('set nested observed object and trigger changes', () => {
+        const { object, observer, observed } = GetTestBed();
+        const o = { d: 'd' };
+        (observed.nested as any) = o;
+        (observed.nested as any).d = 'c';
+        expect((observed.nested as any).d).to.equal('c');
+    });
+    it('set nested change and delete nested object; Resolve Early', async () => {
+        const { object, observer, observed } = GetTestBed({ emit: 'async', resolveChangeAncestors: 'early' });
+        (observed.nested as any).c = 'c2';
+        delete observed.nested as any;
+        let changes = [];
+        observer.watch(observed, v => changes.push(v));
+        await observer.waitFor('emit');
+        expect(changes.length).to.equal(2);
+    });
+    it('set nested change and delete nested object; Resolve Late', async () => {
+        const { object, observer, observed } = GetTestBed({ emit: 'async', resolveChangeAncestors: 'late' });
+        (observed.nested as any).c = 'c2';
+        delete observed.nested as any;
+        let changes = [];
+        observer.watch(observed, v => changes.push(v));
+        await observer.waitFor('emit');
+        expect(changes.length).to.equal(1);
     });
 });
