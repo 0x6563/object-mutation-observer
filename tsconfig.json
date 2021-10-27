@@ -8,7 +8,9 @@
         "sourceMap": true,
         "target": "es5",
         "experimentalDecorators": true,
-        "downlevelIteration": true
+        "downlevelIteration": true,
+        "declaration": true
+    
     },
     "include": [
         "src/**/*"
