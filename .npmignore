@@ -1,3 +1,9 @@
 .gitignore
 .git
 ./src
+./tests
+node_modules
+.nyc_output
+tsconfig.json
+readme.md
+.nycrc
