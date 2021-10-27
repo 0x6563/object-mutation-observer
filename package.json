@@ -1,6 +1,6 @@
 {
   "name": "object-mutation-observer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "src/index.js",
   "scripts": {
@@ -12,7 +12,7 @@
     "type": "git",
     "url": "git+https://github.com/0x6563/object-mutation-observer.git"
   },
-  "author": "",
+  "author": "0x6563",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/0x6563/object-mutation-observer/issues"
