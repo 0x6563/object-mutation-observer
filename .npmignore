@@ -1,8 +1,7 @@
 .gitignore
 .git
-./src
-./tests
-node_modules
+src
+tests
 .nyc_output
 tsconfig.json
 readme.md
