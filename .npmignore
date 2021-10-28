@@ -1,5 +1,5 @@
 .gitignore
-.git
+.github
 src
 tests
 .nyc_output
