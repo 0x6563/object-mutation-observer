@@ -312,7 +312,8 @@ export class ObjectMutationObserver {
             case 'sync':
                 return this.emit();
             case 'async':
-                this.pending = this.pending || setTimeout(() => this.emit(), 0);
+                clearTimeout(this.pending);
+                this.pending = setTimeout(() => this.emit(), 0);
         }
         this.tickers.change.next();
     }
