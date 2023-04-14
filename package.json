@@ -9,7 +9,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
-    "test": "mocha --config=.mocha || true"
+    "test": "mocha --config=.mocha"
   },
   "repository": {
     "type": "git",
@@ -29,6 +29,7 @@
     "@typescript-eslint/parser": "^5.58.0",
     "chai": "^4.3.7",
     "mocha": "^10.2.0",
-    "typescript": "^5.0.4"
+    "typescript": "^5.0.4",
+    "tsx": "^3.12.6"
   }
 }
