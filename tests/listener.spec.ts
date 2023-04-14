@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { GetTestBed } from './utils';
+import { GetTestBed } from './utils.js';
 describe('Listener tests', () => {
     it('root change', () => {
         const { object, observer, observed } = GetTestBed({ emit: 'sync' });
@@ -118,7 +118,7 @@ describe('Listener tests', () => {
 
     it('checking array sort', () => {
         const { object, observer, observed } = GetTestBed({ emit: 'sync' });
-        let changes = [];
+        let changes: any[] = [];
         observer.watch(observed, v => changes.push(v));
         observed.array.sort();
         expect(object.array[0]).to.equal(1);
@@ -127,5 +127,15 @@ describe('Listener tests', () => {
         expect(object.array[3]).to.equal(4);
         expect(object.array[4]).to.equal(5);
         expect(object.array[5]).to.equal(6);
+    });
+
+    it('checking array set', () => {
+        const { object, observer, observed } = GetTestBed({ emit: 'sync' });
+        let changes: any[] = [];
+        observer.watch(observed, v => changes.push(v));
+        observed.array[0] = 1;
+        expect(object.array[0]).to.equal(1);
+        expect(changes.length).to.equal(1);
+
     });
 });

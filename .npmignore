@@ -2,7 +2,6 @@
 .github
 src
 tests
-.nyc_output
 tsconfig.json
 readme.md
-.nycrc
+.mocha

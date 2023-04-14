@@ -1,75 +1,10 @@
-class NextEvent<T> {
-    private resolve: Function;
-    private promise: Promise<T> = this.newPromise;
-    private get newPromise() { return new Promise<T>((resolve) => this.resolve = resolve); }
-
-    get event() { return this.promise; }
-
-    next(value?: T) {
-        this.resolve(value);
-        this.promise = this.newPromise
-    }
-}
-
-class SimpleCache {
-    private weakmap: WeakMap<any, any> = new WeakMap();
-    private map: Map<any, any> = new Map();
-
-    get(key: any, action: Function) {
-        let map = this.getMap(key);
-        if (!map.has(key))
-            map.set(key, action());
-        return map.get(key);
-    }
-
-    delete(key: any) {
-        return this.getMap(key).delete(key);
-    }
-
-    clear() {
-        this.weakmap = new WeakMap();
-        this.map = new Map();
-    }
-
-    private getMap(key: any) {
-        return (typeof key == 'object' || typeof key == 'function') ? this.weakmap : this.map;
-    }
-}
-
-class DefaultPathEncoder implements PathEncoder {
-    private symbols: Map<symbol, string> = new Map();
-    private id: number = 0;
-
-    private getSymbolKey(key: symbol) {
-        if (!this.symbols.has(key))
-            this.symbols.set(key, (++this.id).toString());
-        return '~9' + this.symbols.get(key);
-    }
-
-    encode(_parent: any, key: string) {
-        if (typeof key === 'symbol') {
-            return '/' + this.getSymbolKey(key);
-        }
-        return '/' + key.toString().replace(/~/g, '~0').replace(/\//g, '~1');
-    }
-
-    join(a: string, b: string) {
-        return `${a}${b}`
-    }
-
-    getMatches(a: Set<string>, b: Set<string>): (string)[] {
-        const intersect = [];
-        let [min, max]: Set<string>[] = a.size > b.size ? [b, a] : [a, b];
-        for (const m of min) {
-            if (max.has(m))
-                intersect.push(m);
-        }
-        return intersect;
-    }
-}
+import { NextEvent } from "./next-event.js";
+import { DefaultPathEncoder, PathEncoder } from "./path-encoder.js";
+import { SimpleCache } from "./simple-cache.js";
+import { Ancestors, ChangeArray, ChangeCallback, Events, LogEvent, LoggedEvent, ObjectMeta, ObjectMutationObserverConfig, Proxied } from "./types";
+export { ObjectMutationObserverConfig } from "./types.js"
 
 export const AccessKey = Symbol();
-
 export const Defaults: ObjectMutationObserverConfig = {
     emit: 'async',
     resolveChangeAncestors: 'early',
@@ -78,7 +13,6 @@ export const Defaults: ObjectMutationObserverConfig = {
 }
 
 export class ObjectMutationObserver {
-    public static global = new ObjectMutationObserver();
     private logId = 0;
     private listenerId = 0;
     private references: WeakMap<any, ObjectMeta<any>> = new WeakMap();
@@ -96,10 +30,8 @@ export class ObjectMutationObserver {
         this.configure(config);
     }
 
-    static get Key() { return AccessKey; }
     get key() { return AccessKey; }
 
-    static get Changes(): LoggedEvent[] { return ObjectMutationObserver.global.changes; }
     get changes(): LoggedEvent[] {
         return this.changelog.map(change => {
             if (this.config.resolveChangeAncestors === 'late')
@@ -108,12 +40,10 @@ export class ObjectMutationObserver {
         });
     }
 
-    static get HasChanges() { return ObjectMutationObserver.global.hasChanges; }
     get hasChanges() {
         return this.changelog.length > 0;
     }
 
-    static Configure(config: ObjectMutationObserverConfig) { return ObjectMutationObserver.global.configure(config) }
     configure(config: ObjectMutationObserverConfig) {
         const c = Object.assign({}, Defaults, this.config, config);
         if (this.config.pathEncoder != c.pathEncoder)
@@ -138,11 +68,6 @@ export class ObjectMutationObserver {
         this.config = c;
     }
 
-    static Watch<T>(o: T);
-    static Watch<T>(o: T, callback: ChangeCallback);
-    static Watch<T>(o: T, path: string, callback: ChangeCallback);
-    static Watch<T>(o: T, path?: string | ChangeCallback, callback?: ChangeCallback): Proxied<T> { return ObjectMutationObserver.global.watch(o, path as any, callback); }
-
     watch<T>(o: T);
     watch<T>(o: T, callback: ChangeCallback);
     watch<T>(o: T, path: string, callback: ChangeCallback);
@@ -158,10 +83,6 @@ export class ObjectMutationObserver {
             this.addListener(ref, path, callback)
         return ref.proxy;
     }
-
-    static Unwatch<T>(o: T, callback: ChangeCallback);
-    static Unwatch<T>(o: T, path: string, callback: ChangeCallback);
-    static Unwatch<T>(o: T, path: string | ChangeCallback, callback?: ChangeCallback) { return ObjectMutationObserver.global.unwatch(o, path as any, callback); }
 
     unwatch<T>(o: T, callback: ChangeCallback);
     unwatch<T>(o: T, path: string, callback: ChangeCallback);
@@ -181,32 +102,26 @@ export class ObjectMutationObserver {
             this.unwatchAll(o, callback)
     }
 
-    static UnwatchAll<T>(o: T, callback: ChangeCallback) { return ObjectMutationObserver.global.unwatchAll(o, callback); }
     unwatchAll<T>(o: T, callback: ChangeCallback) {
         this.getMeta(o).listeners.delete(callback);
     }
 
-    static GetNative<T extends object>(o: T) { return ObjectMutationObserver.global.getNative(o); }
     getNative<T extends object>(o: T) {
         return this.getMeta(o).native;
     }
 
-    static GetParents(o: any) { return ObjectMutationObserver.global.getParents(o); }
     getParents(o: any) {
         return this.getAncestors(o);
     }
 
-    static PathEncode(parent: any, key: keyof any) { return ObjectMutationObserver.global.pathEncode(parent, key); }
     pathEncode(parent: any, key: keyof any) {
         return this.encoder.encode(parent, key);
     }
 
-    static WaitFor(event: Events) { return ObjectMutationObserver.global.waitFor(event); }
     waitFor(event: Events) {
         return this.tickers[event].event;
     }
 
-    static Emit() { return ObjectMutationObserver.global.emit(); }
     emit() {
         clearTimeout(this.pending);
         if (!this.hasChanges)
@@ -409,73 +324,3 @@ export class ObjectMutationObserver {
         }
     }
 }
-
-export const { Watch, Unwatch, UnwatchAll, GetNative, GetParents, WaitFor, Emit } = ObjectMutationObserver;
-
-export interface ObjectMutationObserverConfig {
-    emit?: 'sync' | 'async' | 'never';
-    resolveChangeAncestors?: 'early' | 'late' | 'never';
-    greedyProxy?: boolean;
-    tagFunctions?: (Function | 'array-mutators')[];
-    callbackStrategy?: CallbackStrategy;
-    pathEncoder?: PathEncoder | (new () => PathEncoder);
-}
-
-export interface Listener {
-    callback: ChangeCallback;
-    listenerId: number;
-    all: boolean;
-    paths: Set<string>;
-}
-export interface PathEncoder {
-    encode: (parent: any, key: keyof any) => string;
-    join: (a: string, b: string) => string;
-    getMatches: (a: Set<string>, b: Set<string>) => string[]
-}
-
-export interface LogEventExecute extends LogEventBase {
-    event: 'execute';
-    type: 'start' | 'end';
-    tag: Symbol;
-}
-
-export interface LogEventSet extends LogEventBase {
-    event: 'change';
-    type: 'set';
-    previous: any;
-    current: any;
-}
-
-export interface LogEventDelete extends LogEventBase {
-    event: 'change';
-    type: 'delete';
-    previous: any;
-}
-
-interface ObjectMeta<T> {
-    native: Native<T>;
-    proxy: Proxied<T>;
-    parents: Parents;
-    listeners: Map<ChangeCallback, Listener>;
-}
-
-interface LogEventBase {
-    target: any;
-    key: keyof LogEventBase['target'];
-    ancestors?: Ancestors;
-}
-
-export type ChangeCallback = (event: ChangeEvent | ChangeEvent[]) => void;
-export type CallbackStrategy = (changes: ChangeArray) => ChangeArray;
-export type LogEvent = LogEventSet | LogEventDelete | LogEventExecute;
-export type ChangeEvent = LoggedEvent & ReferenceInfo;
-export type ChangeArray = { listener: Listener, change: ChangeEvent | ChangeEvent[] }[];
-
-type Events = 'change' | 'emit';
-type LogIdInfo = { logId: number };
-type ReferenceInfo = { reference: any; paths: string[]; matchedPaths: string[] }
-type LoggedEvent = LogEvent & LogIdInfo;
-type Native<T> = T;
-type Proxied<T> = T extends object | Function ? T & { [AccessKey]: ObjectMeta<T> } : T;
-type Parents = Map<Proxied<any>, { keys: Set<keyof any> }>;
-type Ancestors = Map<Proxied<any>, Set<string>>;

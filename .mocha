@@ -1,0 +1,12 @@
+{
+    "extension": [
+        "spec.ts"
+    ],
+    "spec": "tests/**/*.spec.ts",
+    "parallel": true,
+    "recursive": true,
+    "require": [
+        "tsx"
+    ],
+    "timeout": 30000
+}

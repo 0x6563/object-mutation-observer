@@ -1,21 +1,38 @@
 name: Node.js Package
 on:
   workflow_dispatch:
-  push:
-    branches:
-    - main
+    inputs:
+      version:
+        description: "Version Upgrade"
+        required: true
+        default: "patch"
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v3
       # Setup .npmrc file to publish to npm
-      - uses: actions/setup-node@v2
-        with:
-          node-version: '12.x'
-          registry-url: 'https://registry.npmjs.org'
-      - run: npm install
-      - run: npm run build
-      - run: npm publish
+      - name: Setup GIT
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<>"
+      - name: Install
+        run: npm install
+      - name: Version
+        run: npm version ${{ inputs.version }}
+      - name: Build
+        run: npm run build
+      - name: Publish
+        run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: commit
+        run: |
+          git commit -am "published ${{ inputs.version }} update"
+          git push origin main

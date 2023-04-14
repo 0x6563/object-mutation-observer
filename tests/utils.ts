@@ -1,4 +1,4 @@
-import { ObjectMutationObserver, ObjectMutationObserverConfig } from "../src";
+import { ObjectMutationObserver, ObjectMutationObserverConfig } from "../src/index.js";
 
 export function GetTestBed(config?: ObjectMutationObserverConfig) {
     const object = GetTestObject();

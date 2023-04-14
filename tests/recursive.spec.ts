@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { GetTestBed } from './utils';
+import { GetTestBed } from './utils.js';
 describe('Recursion', () => {
     it('checking value returns', () => {
         const { object, observer, observed } = GetTestBed({ emit: 'sync' });

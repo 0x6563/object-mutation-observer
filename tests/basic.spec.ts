@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { GetTestBed } from './utils';
+import { GetTestBed } from './utils.js';
 describe('Basic tests', () => {
     it('primitive values match', () => {
         const { object, observer, observed } = GetTestBed();
@@ -59,7 +59,7 @@ describe('Basic tests', () => {
         const { object, observer, observed } = GetTestBed({ emit: 'async', resolveChangeAncestors: 'early' });
         (observed.nested as any).c = 'c2';
         delete observed.nested as any;
-        let changes = [];
+        let changes: any[] = [];
         observer.watch(observed, v => changes.push(v));
         await observer.waitFor('emit');
         expect(changes.length).to.equal(2);
@@ -68,7 +68,7 @@ describe('Basic tests', () => {
         const { object, observer, observed } = GetTestBed({ emit: 'async', resolveChangeAncestors: 'late' });
         (observed.nested as any).c = 'c2';
         delete observed.nested as any;
-        let changes = [];
+        let changes: any[] = [];
         observer.watch(observed, v => changes.push(v));
         await observer.waitFor('emit');
         expect(changes.length).to.equal(1);

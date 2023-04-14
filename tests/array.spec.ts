@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { LogEventExecute } from '../src';
-import { GetTestBed } from './utils';
+import { LogEventExecute } from '../src/types.js';
+import { GetTestBed } from './utils.js';
 describe('Array tests', () => {
 
     it('checking array push', () => {
