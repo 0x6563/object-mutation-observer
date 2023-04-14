@@ -24,7 +24,7 @@ jobs:
       - name: Install
         run: npm install
       - name: Version
-        run: npm version ${{ inputs.version }}
+        run: npm version ${{ inputs.version }} --no-git-tag-version
       - name: Build
         run: npm run build
       - name: Publish
