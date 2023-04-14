@@ -3,5 +3,4 @@
 src
 tests
 tsconfig.json
-readme.md
 .mocha

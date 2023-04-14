@@ -138,4 +138,18 @@ describe('Listener tests', () => {
         expect(changes.length).to.equal(1);
 
     });
+
+    it('checking new object mutations', () => {
+        const { object, observer, observed } = GetTestBed({ emit: 'sync' });
+        let changes: any[] = [];
+        observer.watch(observed, v => changes.push(v));
+        observed.b = { c: [] };
+        observed.b.a = 1;
+        observed.b.c.push(1);
+        console.log(observed);
+        console.log(object);
+        console.log(changes);
+        expect(changes.length).to.equal(1);
+
+    });
 });

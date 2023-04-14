@@ -294,6 +294,9 @@ export class ObjectMutationObserver {
             return val;
         },
         set: <T extends object, K extends keyof T>(target: T, key: K, value: any): boolean => {
+            if (this.config.greedyProxy && typeof value == 'object') {
+                this.add(value);
+            }
             const previous = target[key];
             const proxied = this.getProxy(target);
 
@@ -305,8 +308,9 @@ export class ObjectMutationObserver {
             if (typeof target[key] === 'object')
                 this.unlink(proxied, key)
             const b = target[key] = value;
-            if (typeof target[key] === 'object')
+            if (typeof target[key] === 'object') {
                 this.link(proxied, key)
+            }
             this.log({ event: 'change', type: 'set', target: proxied, key, previous, current: target[key] });
 
             return b;

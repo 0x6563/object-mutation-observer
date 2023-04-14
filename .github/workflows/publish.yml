@@ -21,10 +21,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           registry-url: 'https://registry.npmjs.org'
-      - name: Setup GIT
-        run: |
-          git config user.name "GitHub Actions Bot"
-          git config user.email "<>"
       - name: Install
         run: npm install
       - name: Version
@@ -35,7 +31,9 @@ jobs:
         run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - name: commit
+      - name: Commit
         run: |
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
           git commit -am "published ${{ inputs.version }} update"
-          git push origin main
+          git push
