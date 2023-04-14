@@ -2,10 +2,10 @@ export class SimpleCache {
     private weakmap: WeakMap<any, any> = new WeakMap();
     private map: Map<any, any> = new Map();
 
-    get(key: any, action: Function) {
+    get(key: any, initializer: () => any) {
         let map = this.getMap(key);
         if (!map.has(key))
-            map.set(key, action());
+            map.set(key, initializer());
         return map.get(key);
     }
 
