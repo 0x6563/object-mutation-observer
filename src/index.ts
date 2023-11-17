@@ -72,7 +72,7 @@ export class ObjectMutationObserver {
     watch<T>(o: T, callback: ChangeCallback);
     watch<T>(o: T, path: string, callback: ChangeCallback);
     watch<T>(o: T, path?: string | ChangeCallback, callback?: ChangeCallback): Proxied<T> {
-        if (typeof o != 'object')
+        if (!IsObject(o))
             return o as Proxied<T>;
         if (typeof path === 'function') {
             callback = path;
@@ -210,9 +210,9 @@ export class ObjectMutationObserver {
 
     private log(event: LogEvent) {
         if (event.event == 'change') {
-            if (event.previous && typeof event.previous == 'object')
+            if (event.previous && IsObject(event.previous))
                 event.previous = this.getProxy(event.previous);
-            if (event.type === 'set' && typeof event.current == 'object')
+            if (event.type === 'set' && IsObject(event.current))
                 event.current = this.getProxy(event.current);
         }
 
@@ -258,7 +258,7 @@ export class ObjectMutationObserver {
         chain.add(o);
 
         for (const key in o) {
-            if (o.hasOwnProperty(key) && typeof o[key] == 'object') {
+            if (o.hasOwnProperty(key) && IsObject(o[key])) {
                 this.link(o, key);
                 this.traverse(o[key], chain);
             }
@@ -277,7 +277,7 @@ export class ObjectMutationObserver {
                 return this.getMeta(target);
 
             const val = target[key];
-            if (typeof val == 'object')
+            if (IsObject(val))
                 return this.getProxy(val as unknown as object);
 
             if (typeof val == 'function') {
@@ -294,7 +294,7 @@ export class ObjectMutationObserver {
             return val;
         },
         set: <T extends object, K extends keyof T>(target: T, key: K, value: any): boolean => {
-            if (this.config.greedyProxy && typeof value == 'object') {
+            if (this.config.greedyProxy && IsObject(value)) {
                 this.add(value);
             }
             const previous = target[key];
@@ -305,10 +305,10 @@ export class ObjectMutationObserver {
             if (target[key] === value)
                 return true;
 
-            if (typeof target[key] === 'object')
+            if (IsObject(target[key]))
                 this.unlink(proxied, key)
             const b = target[key] = value;
-            if (typeof target[key] === 'object') {
+            if (IsObject(target[key])) {
                 this.link(proxied, key)
             }
             this.log({ event: 'change', type: 'set', target: proxied, key, previous, current: target[key] });
@@ -319,7 +319,7 @@ export class ObjectMutationObserver {
             const previous = target[key];
             const proxied = this.getProxy(target);
 
-            if (typeof target[key] === 'object')
+            if (IsObject(target[key]))
                 this.unlink(proxied, key);
 
             delete target[key];
@@ -327,4 +327,8 @@ export class ObjectMutationObserver {
             return true;
         }
     }
+}
+
+function IsObject(o: any) {
+    return typeof o == 'object' && o !== null;
 }
