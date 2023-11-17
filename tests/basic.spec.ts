@@ -5,6 +5,16 @@ describe('Basic tests', () => {
         const { object, observer, observed } = GetTestBed();
         expect(observed["1"]).to.equal(object["1"]);
     });
+    it('respect Date this', () => {
+        const { object, observer, observed } = GetTestBed();
+        observed.date = new Date('Jan 1,1970');
+        expect(observed.date.toISOString()).to.equal('1970-01-01T05:00:00.000Z');
+    });
+    it('respect Regex this', () => {
+        const { object, observer, observed } = GetTestBed();
+        observed.regex = new RegExp('test');
+        expect(observed.regex.test('test')).to.equal(true);
+    });
     it('nested values match', () => {
         const { object, observer, observed } = GetTestBed();
         expect(observed.nested.c).to.equal(object.nested.c);
