@@ -279,17 +279,26 @@ export class ObjectMutationObserver {
             const val = target[key];
             if (IsObject(val))
                 return this.getProxy(val as unknown as object);
-
             if (typeof val == 'function') {
+                const _this = this.references.has(receiver) ? this.getProxy(receiver) : receiver;
                 if (this.tagFunctions.has(val))
                     return (...args) => {
                         const tag = Symbol();
-                        const _this = this.references.has(receiver) ? this.getProxy(receiver) : receiver;
                         this.log({ event: 'execute', type: 'start', target, key, tag });
                         const r = val.apply(_this, args);
                         this.log({ event: 'execute', type: 'end', target, key, tag });
                         return r;
                     }
+
+                return function (...args) {
+                    if (target instanceof Date) {
+                        return val.apply(target, args);
+                    }
+                    if (target instanceof RegExp) {
+                        return val.apply(target, args);
+                    }
+                    return val.apply(_this, args);
+                }
             }
             return val;
         },
