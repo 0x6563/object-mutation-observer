@@ -307,13 +307,13 @@ export class ObjectMutationObserver {
 
             if (IsObject(target[key]))
                 this.unlink(proxied, key)
-            const b = target[key] = value;
+            target[key] = value;
             if (IsObject(target[key])) {
                 this.link(proxied, key)
             }
             this.log({ event: 'change', type: 'set', target: proxied, key, previous, current: target[key] });
 
-            return b;
+            return true;
         },
         deleteProperty: <T extends object, K extends keyof T>(target: T, key: K) => {
             const previous = target[key];
