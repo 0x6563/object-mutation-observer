@@ -7,8 +7,8 @@ describe('Basic tests', () => {
     });
     it('respect Date this', () => {
         const { object, observer, observed } = GetTestBed();
-        observed.date = new Date('Jan 1,1970');
-        expect(observed.date.toISOString()).to.equal('1970-01-01T05:00:00.000Z');
+        observed.date = new Date('1970-01-01T00:00:00.000Z');
+        expect(observed.date.toISOString()).to.equal('1970-01-01T00:00:00.000Z');
     });
     it('respect Regex this', () => {
         const { object, observer, observed } = GetTestBed();
